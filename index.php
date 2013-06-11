@@ -85,6 +85,8 @@ if ($user) {
 		  js.src = "//connect.facebook.net/en_US/all.js";
 		  d.getElementsByTagName('head')[0].appendChild(js);
 		}(document));
+
+		// Auto Grow the canvas, say NO to scrollbars
 		window.fbAsyncInit = function () {
 		  FB.init({
 		    appId: '<?php echo $appId; ?>',
@@ -102,9 +104,9 @@ if ($user) {
   <body>
 
     <h1>Facebook</h1>
-
-    <a href="#" onclick='postToFeed(); return false;'>Post to Feed</a>
-    <p id='msg'></p>
+	
+	<a href="#" onclick='postToFeed(); return false;'>Post to Feed</a>
+	<a href="#" onclick='renderMFS(); return false;'>Share with a Friend</a>
 
     <?php if ($user): ?>
       <a href="<?php echo $logoutUrl; ?>">Logout</a>
@@ -126,29 +128,78 @@ if ($user) {
       <strong><em>You are not Connected.</em></strong>
     <?php endif ?>
 
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
+	<script> 
+	// Post to my wall 
+	function postToFeed() {
+	  // calling the API ...
+	  var obj = {
+	    method: 'feed',
+	    link: 'https://developers.facebook.com/docs/reference/dialogs/',
+	    picture: 'http://fbrell.com/f8.jpg',
+	    name: 'Facebook Dialogs',
+	    caption: 'Reference Documentation',
+	    description: 'Using Dialogs to interact with users.'
+	  };
 
-    <script> 
-      FB.init({appId: "<?php echo $appId; ?>", status: true, cookie: true});
+	  function callback(response) {
+	    console.log(response);
+	  }
 
-      function postToFeed() {
+	  FB.ui(obj, callback);
+	}
 
-        // calling the API ...
-        var obj = {
-          method: 'feed',
-          link: 'https://developers.facebook.com/docs/reference/dialogs/',
-          picture: 'http://fbrell.com/f8.jpg',
-          name: 'Facebook Dialogs',
-          caption: 'Reference Documentation',
-          description: 'Using Dialogs to interact with users.'
-        };
+	// Render My Friends Here 
 
-        function callback(response) {
-          document.getElementById('msg').innerHTML = "Post ID: " + response['post_id'];
-        }
+	function renderMFS() {
+	  // First get the list of friends for this user with the Graph API
+	  FB.api('/me/friends', function (response) {
+	    var container = document.getElementById('mfs');
+	    var mfsForm = document.createElement('form');
+	    mfsForm.id = 'mfsForm';
 
-        FB.ui(obj, callback);
-      }
-    
-    </script>
+	    // Iterate through the array of friends object and create a checkbox for each one.
+	    for (var i = 0; i < Math.min(response.data.length, 10); i++) {
+	      var friendItem = document.createElement('div');
+	      friendItem.id = 'friend_' + response.data[i].id;
+	      friendItem.innerHTML = '<input type="checkbox" name="friends" value="' + response.data[i].id + '" />' + response.data[i].name;
+	      mfsForm.appendChild(friendItem);
+	    }
+	    container.appendChild(mfsForm);
+
+	    // Create a button to send the Request(s)
+	    var sendButton = document.createElement('input');
+	    sendButton.type = 'button';
+	    sendButton.value = 'Send Request';
+	    sendButton.onclick = sendRequest;
+	    mfsForm.appendChild(sendButton);
+	  });
+	}
+
+	// Post to my Friend's wall 
+
+	function sendRequest() {
+	  // Get the list of selected friends
+	  var sendUIDs = '';
+	  var mfsForm = document.getElementById('mfsForm');
+	  for (var i = 0; i < mfsForm.friends.length; i++) {
+	    if (mfsForm.friends[i].checked) {
+	      sendUIDs += mfsForm.friends[i].value + ',';
+	    }
+	  }
+
+	  // Use FB.ui to send the Request(s)
+	  FB.ui({
+	    method: 'feed',
+	    to: sendUIDs,
+	    title: 'Insert Title Here',
+	    message: 'Now this is where your message will be!!',
+	  }, callback);
+	}
+
+	function callback(response) {
+	  console.log(response);
+	}
+	</script>
   </body>
 </html>
