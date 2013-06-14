@@ -57,6 +57,7 @@ if ($user) {
 <html xmlns:fb="http://www.facebook.com/2008/fbml">
   <head>
     <title>Facebook</title>
+    <link rel="stylesheet" href="./css/tdfriendselector.css" />
     <style>
       body {
       	width: 810px;
@@ -104,9 +105,12 @@ if ($user) {
   <body>
 
     <h1>Facebook</h1>
-	
-	<a href="#" onclick='postToFeed(); return false;'>Post to Feed</a>
-	<a href="#" onclick='renderMFS(); return false;'>Share with a Friend</a>
+	<div id="fb-root"></div>
+	<ul>
+		<li>Status: <span id="login-status">Not logged in</span></li>
+		<li><a href="#" id="btnSelect2">Select one friend</a></li>
+		<li><a href="#" onclick='postToFeed(); return false;'>Post to Feed</a></li>
+	</ul>
 
     <?php if ($user): ?>
       <a href="<?php echo $logoutUrl; ?>">Logout</a>
@@ -149,57 +153,8 @@ if ($user) {
 	  FB.ui(obj, callback);
 	}
 
-	// Render My Friends Here 
-
-	function renderMFS() {
-	  // First get the list of friends for this user with the Graph API
-	  FB.api('/me/friends', function (response) {
-	    var container = document.getElementById('mfs');
-	    var mfsForm = document.createElement('form');
-	    mfsForm.id = 'mfsForm';
-
-	    // Iterate through the array of friends object and create a checkbox for each one.
-	    for (var i = 0; i < Math.min(response.data.length, 10); i++) {
-	      var friendItem = document.createElement('div');
-	      friendItem.id = 'friend_' + response.data[i].id;
-	      friendItem.innerHTML = '<input type="checkbox" name="friends" value="' + response.data[i].id + '" />' + response.data[i].name;
-	      mfsForm.appendChild(friendItem);
-	    }
-	    container.appendChild(mfsForm);
-
-	    // Create a button to send the Request(s)
-	    var sendButton = document.createElement('input');
-	    sendButton.type = 'button';
-	    sendButton.value = 'Send Request';
-	    sendButton.onclick = sendRequest;
-	    mfsForm.appendChild(sendButton);
-	  });
-	}
-
-	// Post to my Friend's wall 
-
-	function sendRequest() {
-	  // Get the list of selected friends
-	  var sendUIDs = '';
-	  var mfsForm = document.getElementById('mfsForm');
-	  for (var i = 0; i < mfsForm.friends.length; i++) {
-	    if (mfsForm.friends[i].checked) {
-	      sendUIDs += mfsForm.friends[i].value + ',';
-	    }
-	  }
-
-	  // Use FB.ui to send the Request(s)
-	  FB.ui({
-	    method: 'feed',
-	    to: sendUIDs,
-	    title: 'Insert Title Here',
-	    message: 'Now this is where your message will be!!',
-	  }, callback);
-	}
-
-	function callback(response) {
-	  console.log(response);
-	}
 	</script>
+	<script src="./js/tdfriendselector.js"></script>
+	<script src="./js/example.js"></script>
   </body>
 </html>
