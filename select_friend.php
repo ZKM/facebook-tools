@@ -3,6 +3,7 @@
 <ul>
 	<li>Status: <span id="login-status">Not logged in</span> <a href="#" id="btnLogin">Login</a></li>
 	<li><a href="#" id="friendSelect">Select a friend</a> (You'll need to log in first)</li>
+	<li id="wallPost"><a href="#" onclick='postToFeed(); return false;'>Post to Wall</a></li>
 </ul>
 
 <div id="results">
@@ -41,8 +42,16 @@
 <script>
 /*globals $, jQuery, FB, TDFriendSelector */
 window.fbAsyncInit = function () {
-	FB.init({appId: '<?php echo $appId; ?>', status: true, cookie: false, xfbml: false, oauth: true});
+  FB.init({
+    appId: '<?php echo $appId; ?>',
+    status: true,
+    cookie: false,
+    xfbml: false,
+    oauth: true
+  });
+
   $(document).ready(function () {
+  	$("#wallPost").hide();
     var selector, logActivity, callbackFriendSelected, callbackFriendUnselected, callbackMaxSelection, callbackSubmit;
 
     // When a friend is selected, log their name and ID
@@ -69,6 +78,7 @@ window.fbAsyncInit = function () {
     // When the user clicks OK, log a message
     callbackSubmit = function (selectedFriendIds) {
       logActivity('Clicked OK with the following friends selected: ' + selectedFriendIds.join(", "));
+      $("#wallPost").show();
     };
 
     // Initialise the Friend Selector with options that will apply to all instances
@@ -121,12 +131,23 @@ window.fbAsyncInit = function () {
     logActivity = function (message) {
       $("#results").append('<div>' + new Date() + ' - ' + message + '</div>');
     };
+
+    // Post to wall
+    function postToFeed() {
+    	// calling the API ...
+    	var obj = {
+    		method: 'feed',
+    		to: selectedFriendIds,
+    		//to: '652971986',
+    		Title: 'Facebook Dialogs',
+    		message: 'Using Dialogs to interact with users.'
+    	};
+    	function callback(response) {
+    		console.log(response);
+    	}
+    	FB.ui(obj, callback);
+    }
   });
 };
-(function () {
-	var e = document.createElement('script');
-	e.async = true;
-	e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
-	document.getElementById('fb-root').appendChild(e);
-});
+
 </script>
