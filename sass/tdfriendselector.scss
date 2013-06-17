@@ -63,7 +63,7 @@
 
 		.TDFriendSelector_footer {
 			padding: 8px 10px; background: #F2F2F2; border-top: 1px solid #CCC;
-			#TDFriendSelector_pagePrev, #TDFriendSelector_pageNext { float: left; height: 21px; width: 22px; overflow: hidden; text-indent: -999em; background: transparent url(tdfriendselector.png) no-repeat 0 0; }
+			#TDFriendSelector_pagePrev, #TDFriendSelector_pageNext { float: left; height: 21px; width: 22px; overflow: hidden; text-indent: -999em; background: transparent url("../img/tdfriendselector.png") no-repeat 0 0; }
 			#TDFriendSelector_pagePrev { background-position: -44px 0; margin-right: 2px; }
 			#TDFriendSelector_pageNext { margin-right: 6px; }
 			#TDFriendSelector_pagePrev.TDFriendSelector_disabled { background-position: -66px 0; cursor: default; }
