@@ -3,8 +3,10 @@
 <ul>
 	<li>Status: <span id="login-status">Not logged in</span> <a href="#" id="btnLogin">Login</a></li>
 	<li><a href="#" id="friendSelect">Select a friend</a> (You'll need to log in first)</li>
-	<li id="wallPost"><a href="#" onclick='postToFeed(); return false;'>Post to Wall</a></li>
+	<li id="wallPost"><a href="#" class='postToFeed'>Post to Wall</a></li>
 </ul>
+<input id="friend_id" type="hidden" name="friend_id" value="">
+<input type="submit" name="submit" value="Go">
 
 <div id="results">
 	<h2><pre>ACTIVITY LOG</pre></h2>
@@ -51,7 +53,7 @@ window.fbAsyncInit = function () {
   });
 
   $(document).ready(function () {
-  	$("#wallPost").hide();
+    $("#wallPost").hide();
     var selector, logActivity, callbackFriendSelected, callbackFriendUnselected, callbackMaxSelection, callbackSubmit;
 
     // When a friend is selected, log their name and ID
@@ -77,7 +79,9 @@ window.fbAsyncInit = function () {
 
     // When the user clicks OK, log a message
     callbackSubmit = function (selectedFriendIds) {
-      logActivity('Clicked OK with the following friends selected: ' + selectedFriendIds.join(", "));
+      logActivity('Selected friends: ' + selectedFriendIds.join(", "));
+      selectedID(selectedFriendIds.join(", "));
+      wallPost(selectedFriendIds.join(", "));
       $("#wallPost").show();
     };
 
@@ -132,21 +136,26 @@ window.fbAsyncInit = function () {
       $("#results").append('<div>' + new Date() + ' - ' + message + '</div>');
     };
 
+    selectedID = function (friend_id) {
+      $("#friend_id").val(friend_id);
+    };
+
     // Post to wall
-    function postToFeed() {
-    	// calling the API ...
-    	var obj = {
-    		method: 'feed',
-    		to: selectedFriendIds,
-    		//to: '652971986',
-    		Title: 'Facebook Dialogs',
-    		message: 'Using Dialogs to interact with users.'
-    	};
-    	function callback(response) {
-    		console.log(response);
-    	}
-    	FB.ui(obj, callback);
-    }
+    wallPost = function (fid) {
+      $("#wallPost").click(function () {
+        var obj = {
+          method: 'feed',
+          to: fid,
+          title: 'Facebook Dialogs',
+          description: 'Using Dialogs to interact with users.'
+        };
+        console.log(obj);
+        function callback(response) {
+          console.log(response);
+        }
+        FB.ui(obj, callback);
+      });
+    };
   });
 };
 

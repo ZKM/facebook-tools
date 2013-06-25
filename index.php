@@ -11,6 +11,9 @@ $facebook = new Facebook(array(
   'secret' => $secret,
 ));
 
+// Database Connection
+include('con.php');
+
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -27,6 +30,9 @@ $facebook = new Facebook(array(
   <meta property="fb:app_id" content="<?php echo $appId; ?>"/>
 </head>
 <body>
+  <style type="text/css">
+  div#friend_form .validation, div#friend_form .success {display: none; font-size: 12px; margin-bottom: 20px;}
+  </style>
 <div id="fb-root"></div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script>
@@ -58,9 +64,40 @@ $facebook = new Facebook(array(
    }(document, /*debug*/ false));
 </script>
 <pre>Your journey begins now.</pre>
-
-<?php
-    include 'select_friend.php';
-?>
+<div id="friend_form">
+<div class="validation">
+  <p>Oops! Please correct the highlighted fields...</p>
+</div>
+<div class="success">
+  <p>Thanks! I'll get back to you shortly.</p>
+</div>
+<form action="javascript:;" method="post">
+    <?php include 'select_friend.php'; ?>
+  </form>
+</div>
+  <script>
+  // AJAX POST
+  $("div#friend_form form").submit(function() {
+    var this_form = $(this);
+    $.ajax({
+      type: 'post',
+      data: this_form.serialize(),
+      url: 'process.php',
+      success: function(res) {
+        if(res == "true") {
+          this_form.fadeOut("fast");
+          $(".success").fadeIn("fast");
+          $(".validation").fadeOut("fast");
+        } else {
+          $(".validation").fadeIn("fast");
+          this_form.find(".text").removeClass("error");
+          $.each(res.split(","), function() {
+            this_form.find("#"+this).addClass("error");
+          });
+        }
+      }
+    });
+  });
+</script>
 </body>
 </html>
